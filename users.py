@@ -2,7 +2,7 @@ import random
 
 class User:
     def __init__(self, Apteka):
-        self.store = store
+        self.Apteka = Apteka
         self.authenticated_user = None
 
     def validate_credentials(self, login, password):
@@ -15,20 +15,20 @@ class User:
         if not self.validate_credentials(login, password):
             return False
 
-        self.store.cursor.execute('SELECT * FROM users WHERE login = ?', (login,))
-        existing_user = self.store.cursor.fetchone()
+        self.Apteka.cursor.execute('SELECT * FROM users WHERE login = ?', (login,))
+        existing_user = self.Apteka.cursor.fetchone()
 
     def display_products(self):
-        self.store.cursor.execute('SELECT * FROM products')
-        products = self.store.cursor.fetchall()
+        self.Apteka.cursor.execute('SELECT * FROM products')
+        products = self.Apteka.cursor.fetchall()
         print("Товары в Аптеке")
         for product in products:
             print(f"{product[0]}. {product[1]} - ${product[2]}")
         return products
 
 class Client(User):
-    def __init__(self, store):
-        super().__init__(store)
+    def __init__(self, Apteka):
+        super().__init__(Apteka)
 
     def validate_product_id(self, product_id, products):
         try:
@@ -46,9 +46,9 @@ class Client(User):
         if not self.validate_product_id(product_id, products):
             return
 
-        self.store.cursor.execute('INSERT INTO shopping_cart (user_id, product_id) VALUES (?, ?)',
+        self.Apteka.cursor.execute('INSERT INTO shopping_cart (user_id, product_id) VALUES (?, ?)',
         (self.authenticated_user[0], product_id))
-        self.store.conn.commit()
+        self.Apteka.conn.commit()
 
 class Administrator(User):
     ADMIN_USERNAME = "admin"
@@ -58,12 +58,12 @@ class Administrator(User):
         return login == self.ADMIN_USERNAME and password == self.ADMIN_PASSWORD
 
     def add_product(self, name, price):
-        self.store.cursor.execute('INSERT INTO Lekarstva (name, price) VALUES (?, ?)', (name, price))
-        self.store.conn.commit()
+        self.Apteka.cursor.execute('INSERT INTO Lekarstva (name, price) VALUES (?, ?)', (name, price))
+        self.Apteka.conn.commit()
 
     def remove_product(self, name):
-        self.store.cursor.execute('DELETE FROM Lekarstva WHERE name = ?', (name))
-        self.store.conn.commit()
+        self.Apteka.cursor.execute('DELETE FROM Lekarstva WHERE name = ?', (name))
+        self.Apteka.conn.commit()
 
     def change_product_name(self, current_name, new_name):
         self.store.cursor.execute('UPDATE Lekarstva SET name = ? WHERE name = ?', (new_name, current_name))
