@@ -1,7 +1,7 @@
 import random
 
 class User:
-    def __init__(self, store):
+    def __init__(self, Apteka):
         self.store = store
         self.authenticated_user = None
 
